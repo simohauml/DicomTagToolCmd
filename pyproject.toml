@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "dicom-anonymizer>=1.0.13.post1",
+    "pylint>=4.0.4",
 ]
 
 [[tool.uv.index]]
