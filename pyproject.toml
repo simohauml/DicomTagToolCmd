@@ -1,0 +1,14 @@
+[project]
+name = "dicomtagtoolcmd"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dicom-anonymizer>=1.0.13.post1",
+]
+
+[[tool.uv.index]]
+name = "tencent"
+url = "https://mirrors.cloud.tencent.com/pypi/simple/"
+#url = "https://mirrors.tencentyun.com/pypi/simple/" # for intranet users
