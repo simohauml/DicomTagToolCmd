@@ -38,7 +38,7 @@ TAGS_TO_KEEP = [
 TAGS_TO_EMPTY = []
 
 ID_MAPPINGS = {}
-PID_PREFIX = "A_"
+PID_PREFIX = "AB_"
 DUMMY_NAME = "Anonymous Joe"
 
 def main():
@@ -80,36 +80,44 @@ def main():
         func_replace_name # Patient's Name
     )
 
+    func_replace_birthdate = rules.replace_birthdate("20000101")
+    extra_anonymization_rules[(0x0010,0x0030)] = (
+        func_replace_birthdate # Patient's Birth Date
+    )
+
     dicom_paths = helper.find_dirs_with_files(input_root_path)
     tmp_dict = simpledicomanonymizer.dictionary.copy()
 
     for dicom_path in dicom_paths:
-        files = os.listdir(dicom_path)
-        for file in files:
-            file_full_path = dicom_path + "/" + file
-            dataset = pydicom.dcmread(file_full_path)
-            pid = dataset.get((0x0010, 0x0020)).value
-            if pid not in ID_MAPPINGS:
-                ID_MAPPINGS[pid] = PID_PREFIX + helper.generate_guid(pid, 8)
+        if "WB CT_" in dicom_path or "WB PET_" in dicom_path:
+            files = os.listdir(dicom_path)
+            for file in files:
+                file_full_path = dicom_path + "/" + file
+                dataset = pydicom.dcmread(file_full_path)
+                pid = dataset.get((0x0010, 0x0020)).value
+                if pid not in ID_MAPPINGS:
+                    ID_MAPPINGS[pid] = PID_PREFIX + helper.generate_guid(pid, 8)
 
-        func_replace_id = rules.replace_patientid(ID_MAPPINGS)
+            func_replace_id = rules.replace_patientid(ID_MAPPINGS)
 
-        extra_anonymization_rules[(0x0010, 0x0020)] = (
-            func_replace_id
-        )
-        simpledicomanonymizer.dictionary.update(tmp_dict)
+            extra_anonymization_rules[(0x0010, 0x0020)] = (
+                func_replace_id
+            )
+            simpledicomanonymizer.dictionary.update(tmp_dict)
 
-        result_path = dicom_path.replace(input_root_path, output_dicom_path)
-        if not os.path.exists(result_path):
-            os.makedirs(result_path)
-        # Launch the anonymization
-        anonymize(
-            dicom_path,
-            result_path,
-            extra_anonymization_rules,
-            delete_private_tags=False,
-        )
-        tmp_dict = simpledicomanonymizer.dictionary.copy()
+            result_path = dicom_path.replace(input_root_path, output_dicom_path)
+            if not os.path.exists(result_path):
+                os.makedirs(result_path)
+            # Launch the anonymization
+            anonymize(
+                dicom_path,
+                result_path,
+                extra_anonymization_rules,
+                delete_private_tags=False,
+            )
+            tmp_dict = simpledicomanonymizer.dictionary.copy()
+        else:
+            print(f"Skipping non-WB path: {dicom_path}")
 
     with open("patient_mappings.txt", "w", encoding="utf-8") as f_w:
         f_w.write(json.dumps(ID_MAPPINGS))

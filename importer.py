@@ -15,8 +15,9 @@ DICT_STUDYID = {}
 def main():
     """Import DICOM files
     """
-    input_path = r"D:\playground\dicom\data3\NYCRM-070\trans"
-    out_path = r"D:\playground\dicom\dicombase"
+    input_path = r"G:\CA9-Dicom"
+    # out_path = r"D:\playground\Dicoms\DicomTagToolCmd\dicombase"
+    out_path = r"D:\DicomBase"
 
     dicom_paths = helper.find_dirs_with_files(input_path)
 
@@ -31,12 +32,18 @@ def main():
                     patientid = dataset.get((0x0010, 0x0020)).value
                     p_identifier = patientid + "_" + patientname
                     studyid = dataset.get((0x0020, 0x000d)).value
+                    studydate = dataset.get((0x0008, 0x0020)).value
+                    studytime = dataset.get((0x0008, 0x0030)).value
                     seriesid = dataset.get((0x0020, 0x000E)).value
+                    seriesdesc = dataset.get((0x0008, 0x103e)).value
                     # if p_identifier not in DICT_IDENTIFIER:
                     #     DICT_IDENTIFIER[p_identifier] = helper.generate_guid(p_identifier)
                     # if studyid not in DICT_STUDYID:
                     #     DICT_STUDYID[studyid] = helper.generate_guid(studyid)
-                    dicombase_path = out_path + "\\" + p_identifier + "\\" + studyid + "\\" + seriesid
+                    dicombase_path = (out_path + "\\" 
+                                      + p_identifier + "\\" 
+                                      + studydate + "_" + studyid + "\\" 
+                                      + seriesdesc + "_" + seriesid)
                     if not os.path.exists(dicombase_path):
                         os.makedirs(dicombase_path)
                     newfilename = "anony_" + helper.generate_guid(file) + ".dcm"

@@ -41,3 +41,16 @@ def replace_patientid(guid_dict: dict):
             temp = guid_dict[element.value]
             element.value = temp
     return apply_replace_patientid
+
+def replace_birthdate(newvalue: str):
+    """Replace Patient Birth Date with specific string
+
+    Args:
+        newvalue (str): new value in YYYYMMDD format
+    """
+    def apply_replace_birthdate(dataset, tag):
+        element = dataset.get(tag)
+        if element is not None:
+            element.value = newvalue
+    return apply_replace_birthdate
+
